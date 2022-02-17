@@ -19,10 +19,17 @@ module.exports.register = async (req, res) => {
     const user = req.body;
     if (user.password !== user.confirmPassword) {
         return res.status(500).json({
-            message: "Error occured",
+            message: "Error occurred",
             error: "Password and Confirmed Password didn't match"
         })
     } else {
+        let searchedUser = await User.findOne({email: user.email});
+        if(searchedUser) {
+            return res.json(200).json({
+                message: "User Already Exist",
+                user: searchedUser
+            })
+        }
         try {
             let userCreated = await User.create(req.body);
             return res.status(200).json({
@@ -31,7 +38,7 @@ module.exports.register = async (req, res) => {
             });
         } catch (e) {
             return res.status(500).json({
-                message: "Error occured",
+                message: "Error occurred",
                 error: e
             })
         }
@@ -39,13 +46,29 @@ module.exports.register = async (req, res) => {
 
 }
 module.exports.logout = (req, res) => {
-    return res.status(200).json({
-        message: "logout endpoint hit"
-    })
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({
+            message: "Unauthorized Access"
+        })
+    } else {
+        req.logout();
+        req.session.destroy()
+        return res.status(200).json({
+            message: "User Logged Out Successfull"
+        })
+    }
+
 }
 
 module.exports.profile = (req, res) => {
-    return res.status(200).json({
-        message: "Updating Profile"
+    if(req.isAuthenticated()) {
+        return res.status(200).json({
+            message: "Updating Profile",
+            user: req.user
+        })
+    }
+    return res.status(404).json({
+        message: "User Not Found"
     })
+
 }

@@ -30,6 +30,8 @@ const medicineSchema = new mongoose.Schema({
     image: {
         type: String
     }
+}, {
+    timestamps: true
 });
 
 const Medicine = mongoose.model("medicines", medicineSchema);
