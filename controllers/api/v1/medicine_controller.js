@@ -5,14 +5,18 @@ module.exports.post = async (req, res) => {
     if (medicineSearched) {
         return res.status(200).json({
             message: "Medicine Already Exist",
-            medicine: medicineSearched
+            data: {
+                medicine: medicineSearched
+            }
         });
     }
     try {
         let medicineCreated = await Medicine.create(req.body);
         return res.status(200).json({
             message: "Medicine Posted",
-            medicine: medicineCreated
+            data: {
+                medicine: medicineCreated
+            }
         })
     } catch (e) {
         return res.status(500).json({
@@ -45,11 +49,28 @@ module.exports.find = async (req, res) => {
         let medicinesSearched = await Medicine.find({name: {$regex: req.query.name, $options: "gi"}});
         return res.status(200).json({
             message: `User Retrieved with search query ${req.query.name}`,
-            medicines: medicinesSearched
+            data: {
+                medicines: medicinesSearched
+            }
         })
     } catch (e) {
         return res.status(500).json({
             message: "Error occurred while searching medicine",
+            error: e
+        })
+    }
+}
+
+module.exports.list = async (req, res) => {
+    try {
+        let medicines = await Medicine.find({}).sort("name");
+        return res.status(200).json({
+            message: "Medicines fetched successfully",
+            medicines: medicines
+        })
+    } catch (e) {
+        return res.status(500).json({
+            message: "Error occured while fetching medicines",
             error: e
         })
     }

@@ -1,15 +1,24 @@
 const User = require("../../../models/User");
+const jwt = require("jsonwebtoken");
 module.exports.login = async (req, res) => {
     const user = req.body;
+    console.log(req.body)
     try {
         let userFromDB = await User.findOne({email: user.email});
+        if (!userFromDB || user.password !== userFromDB.password) {
+            return res.json(422, {
+                message: "Invalid username or password"
+            })
+        }
         return res.status(200).json({
-            message: "User Found Successfull",
-            user: userFromDB
+            message: "User Found Successful",
+            data: {
+                token: jwt.sign(userFromDB.toJSON(), 'medicos', {expiresIn: '100000'})
+            }
         })
     } catch (e) {
         return res.status(500).json({
-            message: "Error Occured",
+            message: "Error Occurred",
             error: e
         })
     }
@@ -24,17 +33,21 @@ module.exports.register = async (req, res) => {
         })
     } else {
         let searchedUser = await User.findOne({email: user.email});
-        if(searchedUser) {
+        if (searchedUser) {
             return res.json(200).json({
                 message: "User Already Exist",
-                user: searchedUser
+                data: {
+                    user: searchedUser
+                }
             })
         }
         try {
             let userCreated = await User.create(req.body);
             return res.status(200).json({
                 message: "User Created Successfully",
-                user: userCreated
+                data: {
+                    user: userCreated
+                }
             });
         } catch (e) {
             return res.status(500).json({
@@ -46,27 +59,29 @@ module.exports.register = async (req, res) => {
 
 }
 module.exports.logout = (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({
-            message: "Unauthorized Access"
-        })
-    } else {
-        req.logout();
-        req.session.destroy()
-        return res.status(200).json({
-            message: "User Logged Out Successfull"
-        })
-    }
+    // console.log(req.isAuthenticated(), req.user)
+    // if (!req.isAuthenticated()) {
+    //     return res.status(401).json({
+    //         message: "Unauthorized Access"
+    //     })
+    // } else {
+    console.log(req.user)
+    req.logout();
+    // req.session.destroy()
+    return res.status(200).json({
+        message: "User Logged Out Successfull"
+    })
+    // }
 
 }
 
 module.exports.profile = (req, res) => {
-    if(req.isAuthenticated()) {
-        return res.status(200).json({
-            message: "Updating Profile",
+    return res.status(200).json({
+        message: "Updating Profile",
+        data: {
             user: req.user
-        })
-    }
+        }
+    })
     return res.status(404).json({
         message: "User Not Found"
     })

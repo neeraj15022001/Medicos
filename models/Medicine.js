@@ -8,10 +8,6 @@ const medicineSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    expiry: {
-        type: mongoose.Schema.Types.Date,
-        required: true
-    },
     price: {
         type: mongoose.Schema.Types.Number,
         required: true
