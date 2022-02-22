@@ -13,6 +13,7 @@ module.exports.login = async (req, res) => {
         return res.status(200).json({
             message: "User Found Successful",
             data: {
+                //TODO: Send Refresh Token along with JWT Token
                 token: jwt.sign(userFromDB.toJSON(), 'medicos', {expiresIn: '100000'})
             }
         })
@@ -67,9 +68,8 @@ module.exports.logout = (req, res) => {
     // } else {
     console.log(req.user)
     req.logout();
-    // req.session.destroy()
     return res.status(200).json({
-        message: "User Logged Out Successfull"
+        message: "User Logged Out Successfully"
     })
     // }
 
